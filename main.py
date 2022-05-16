@@ -1,10 +1,7 @@
 import pandas as pd 
-import numpy as np 
 import streamlit as st
-import matplotlib.pyplot as plt
-import seaborn as sb
-import calplot 
 from plotly_calplot import calplot
+import plotly.express as px
 
 
 pd.set_option('display.max_columns',None)
@@ -27,8 +24,6 @@ while i < len(transactions):
     i+=1
 transactions.drop(labels=list,inplace=True)
 transactions.reset_index(drop=True,inplace=True)
-transactions['Num_Transactions'] = 1
-print(transactions.head())
 #returns a subset of monthly transactions 
 def getMonthlyTransactions(month, year):
     startDay = '01'
@@ -40,20 +35,34 @@ def getMonthlyTransactions(month, year):
     startDate = year + '-' + month + '-' + startDay
     endDate = year + '-' + month + '-' + endDay
     return transactions.loc[(transactions['Date'] >= startDate) & (transactions['Date'] <=endDate)] 
-#transactions.set_index('Date',inplace=True)
-#col = 'Amount'
-#cmap = sb.light_palette('#912CEE',as_cmap=True)
-#calplot.calplot(transactions[col],how='sum',colorbar=False,cmap=cmap)
 
 
 
 
+#calendar heatmap
 fig = calplot(
    transactions,
     x='Date',
     y='Amount',
     title="Spending Calendar"
 )
+
+#barplot
+catNames = transactions['Category'].value_counts().index.tolist()
+catCounts = transactions['Category'].value_counts().tolist()
+categoryData = {'Category':catNames,'Counts':catCounts}
+df = pd.DataFrame(categoryData)
+fig2 = px.bar(df,x='Counts',y='Category' ,orientation='h',title='Spending By Category')
+
+
+
+sum = transactions['Amount'].sum()
+transactionsMay = getMonthlyTransactions('05','2022')
 #orangizing streamlit app
 st.header("Alan's Spending Habits")
+
+a1,a2 = st.columns(2) 
+a1.metric('Total Spending', "$"+str(sum))
+a2.metric('Amount Spent In May', '$'+str(transactionsMay['Amount'].sum()))
 st.plotly_chart(fig, use_container_width=True)
+st.plotly_chart(fig2)
