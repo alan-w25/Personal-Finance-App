@@ -6,7 +6,7 @@ import plotly.express as px
 
 pd.set_option('display.max_columns',None)
 #data set of monthly transactions
-transactions = pd.read_csv('/Users/alanwu/Documents/Datasets/transactions.csv')
+transactions = pd.read_csv('./transactions.csv')
 
 #deleting empty columns and clean data
 transactions.drop(['Labels', 'Notes'], axis = 1,inplace=True)
